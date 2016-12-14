@@ -8,9 +8,8 @@ from . import _implicit
 log = logging.getLogger("implicit")
 
 
-def alternating_least_squares(Cui, factors, regularization=0.01,
-                              iterations=15,
-                              use_native=True, use_cg=True,
+def alternating_least_squares(Cui, factors, X=None, Y=None, regularization=0.01,
+                              iterations=15, use_native=True, use_cg=True,
                               num_threads=0, dtype=np.float64,
                               calculate_training_loss=False):
     """ factorizes the matrix Cui using an implicit alternating least squares
@@ -19,9 +18,10 @@ def alternating_least_squares(Cui, factors, regularization=0.01,
     Args:
         Cui (csr_matrix): Confidence Matrix
         factors (int): Number of factors to extract
+        X (numpy array): user factors
+        Y (numpy array): item factors
         regularization (double): Regularization parameter to use
-        iterations (int): Number of alternating least squares iterations to
-        run
+        iterations (int): Number of alternating least squares iterations to run
         num_threads (int): Number of threads to run least squares iterations.
         0 means to use all CPU cores.
 
@@ -32,8 +32,9 @@ def alternating_least_squares(Cui, factors, regularization=0.01,
 
     users, items = Cui.shape
 
-    X = np.random.rand(users, factors).astype(dtype) * 0.01
-    Y = np.random.rand(items, factors).astype(dtype) * 0.01
+    if X is None and Y is None:
+        X = np.random.rand(users, factors).astype(dtype) * 0.01
+        Y = np.random.rand(items, factors).astype(dtype) * 0.01
 
     Cui, Ciu = Cui.tocsr(), Cui.T.tocsr()
 
